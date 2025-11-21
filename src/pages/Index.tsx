@@ -6,7 +6,7 @@ import { ImagePreview } from "@/components/ImagePreview";
 import { PricingModal } from "@/components/PricingModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { initializeUserId, getUserId, isUnlocked as checkUnlocked, getApiUrl } from "@/lib/user";
+import { initializeUserId, getUserId, isUnlocked as checkUnlocked, setUnlocked, getApiUrl } from "@/lib/user";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -17,11 +17,45 @@ const Index = () => {
   const [dailyUsage, setDailyUsage] = useState(0);
   const uploadRef = useRef<HTMLDivElement>(null);
 
+  const refreshUnlockState = async () => {
+    // First check localStorage
+    const unlocked = checkUnlocked();
+    setIsUnlockedState(unlocked);
+    
+    // Also verify with backend if we have a user_id
+    const userId = getUserId();
+    if (userId) {
+      try {
+        const apiUrl = getApiUrl();
+        const response = await fetch(`${apiUrl}/subscription-status?user_id=${userId}`, {
+          method: "GET",
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.subscribed || data.active) {
+            setUnlocked(true);
+            setIsUnlockedState(true);
+            return true;
+          } else {
+            // If backend says not subscribed, update localStorage
+            setUnlocked(false);
+            setIsUnlockedState(false);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check subscription status:", error);
+      }
+    }
+    
+    return unlocked;
+  };
+
   useEffect(() => {
     // Initialize user_id on mount
     initializeUserId();
-    // Check unlock state
-    setIsUnlockedState(checkUnlocked());
+    // Check unlock state (with backend verification)
+    refreshUnlockState();
     
     // Check daily usage from localStorage
     const today = new Date().toDateString();
@@ -35,6 +69,26 @@ const Index = () => {
       localStorage.setItem("last_usage_date", today);
       localStorage.setItem("daily_usage_count", "0");
     }
+
+    // Refresh unlock state when page becomes visible (user returns from checkout)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshUnlockState();
+      }
+    };
+
+    // Refresh unlock state when window gains focus (user returns from checkout)
+    const handleFocus = () => {
+      refreshUnlockState();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const handleImageUpload = async (file: File) => {
@@ -93,12 +147,13 @@ const Index = () => {
         }
 
         const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.detail || errorData.message || 'Processing failed';
+        const errorMessage = String(errorData.detail || errorData.message || 'Processing failed');
         
         // Check if error message indicates upgrade needed
-        if (errorMessage.toLowerCase().includes('upgrade') || 
-            errorMessage.toLowerCase().includes('subscription') ||
-            errorMessage.toLowerCase().includes('limit')) {
+        const safeErrorMessage = (errorMessage || "").toLowerCase();
+        if (safeErrorMessage.includes('upgrade') || 
+            safeErrorMessage.includes('subscription') ||
+            safeErrorMessage.includes('limit')) {
           toast.error("Upgrade required!");
           setIsPricingOpen(true);
           setUploadedImage(null);
@@ -283,7 +338,7 @@ const Index = () => {
           setIsPricingOpen(open);
           // Refresh unlock state when modal closes (in case user unlocked)
           if (!open) {
-            setIsUnlockedState(checkUnlocked());
+            refreshUnlockState();
           }
         }} 
       />

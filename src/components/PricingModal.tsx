@@ -87,7 +87,8 @@ export const PricingModal = ({ open, onOpenChange }: PricingModalProps) => {
     try {
       const apiUrl = getApiUrl();
       // Map plan names to backend format: PRO -> pro, PRO+ -> pro_plus
-      const planName = plan.name === "PRO" ? "pro" : plan.name === "PRO+" ? "pro_plus" : plan.name.toLowerCase();
+      const safePlanName = (plan.name || "").toLowerCase();
+      const planName = plan.name === "PRO" ? "pro" : plan.name === "PRO+" ? "pro_plus" : safePlanName;
       
       const checkoutUrl = `${apiUrl}/create-checkout-session?plan=${planName}&user_id=${userId}`;
       console.log("Creating checkout session:", checkoutUrl);

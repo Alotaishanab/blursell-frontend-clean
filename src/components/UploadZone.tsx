@@ -135,9 +135,13 @@ export const UploadZone = ({ onImageUploaded, isProcessing, isUnlocked = false, 
             <p className="text-xs text-muted-foreground opacity-70">
               Supports JPG, PNG, WebP • Max 10MB
             </p>
-            {!isUnlocked && (
+            {!isUnlocked ? (
               <p className="text-xs text-muted-foreground opacity-70 mt-2">
                 Free: {dailyUsage}/1 image today
+              </p>
+            ) : (
+              <p className="text-xs text-primary opacity-80 mt-2 font-medium">
+                ✓ Unlimited processing
               </p>
             )}
           </div>
