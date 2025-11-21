@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { UploadZone } from "@/components/UploadZone";
@@ -125,19 +126,25 @@ const Index = () => {
         throw new Error("User ID not found");
       }
 
-      // Create FormData for API
+      // Create FormData for API - only file, user_id goes in query param
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("user_id", userId);
 
       const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/process`, {
+      const response = await fetch(`${apiUrl}/process?user_id=${userId}`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        // Handle 402 Payment Required or upgrade required
+        // Handle specific status codes
+        if (response.status === 400) {
+          toast.error("Invalid request. Please check your image and try again.");
+          setUploadedImage(null);
+          setIsProcessing(false);
+          return;
+        }
+
         if (response.status === 402) {
           toast.error("Upgrade required for unlimited processing!");
           setIsPricingOpen(true);
@@ -146,6 +153,21 @@ const Index = () => {
           return;
         }
 
+        if (response.status === 422) {
+          toast.error("Image upload failed — please try again.");
+          setUploadedImage(null);
+          setIsProcessing(false);
+          return;
+        }
+
+        if (response.status === 500) {
+          toast.error("Server error. Please try again later.");
+          setUploadedImage(null);
+          setIsProcessing(false);
+          return;
+        }
+
+        // Handle other errors
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = String(errorData.detail || errorData.message || 'Processing failed');
         
@@ -161,7 +183,10 @@ const Index = () => {
           return;
         }
         
-        throw new Error(errorMessage);
+        toast.error(errorMessage);
+        setUploadedImage(null);
+        setIsProcessing(false);
+        return;
       }
 
       // Get blurred image blob
@@ -320,9 +345,9 @@ const Index = () => {
                   © 2025 BlurSell. All rights reserved.
                 </p>
                 <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                  <span className="hover:text-foreground transition-micro cursor-default">Terms</span>
+                  <Link to="/terms" className="hover:text-foreground transition-micro">Terms</Link>
                   <span className="text-border/50">•</span>
-                  <span className="hover:text-foreground transition-micro cursor-default">Privacy</span>
+                  <Link to="/privacy" className="hover:text-foreground transition-micro">Privacy</Link>
                   <span className="text-border/50">•</span>
                   <span className="hover:text-foreground transition-micro cursor-default">Security</span>
                 </div>
