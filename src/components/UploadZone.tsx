@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Upload, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
@@ -6,9 +6,11 @@ import { toast } from "sonner";
 interface UploadZoneProps {
   onImageUploaded: (file: File) => void;
   isProcessing: boolean;
+  isUnlocked?: boolean;
+  dailyUsage?: number;
 }
 
-export const UploadZone = ({ onImageUploaded, isProcessing }: UploadZoneProps) => {
+export const UploadZone = ({ onImageUploaded, isProcessing, isUnlocked = false, dailyUsage = 0 }: UploadZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = useCallback((file: File) => {
@@ -64,10 +66,10 @@ export const UploadZone = ({ onImageUploaded, isProcessing }: UploadZoneProps) =
   }, [handleFile]);
 
   // Add paste listener
-  useState(() => {
+  useEffect(() => {
     document.addEventListener('paste', handlePaste);
     return () => document.removeEventListener('paste', handlePaste);
-  });
+  }, [handlePaste]);
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4">
@@ -120,6 +122,11 @@ export const UploadZone = ({ onImageUploaded, isProcessing }: UploadZoneProps) =
             <p className="text-xs text-muted-foreground opacity-70">
               Supports JPG, PNG, WebP • Max 10MB
             </p>
+            {!isUnlocked && (
+              <p className="text-xs text-muted-foreground opacity-70 mt-2">
+                Free: {dailyUsage}/1 image today
+              </p>
+            )}
           </div>
         )}
       </div>

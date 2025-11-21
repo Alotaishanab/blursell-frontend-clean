@@ -22,12 +22,6 @@ export const Header = ({ onUploadClick, onPricingClick }: HeaderProps) => {
           >
             Pricing
           </button>
-          <a 
-            href="#help" 
-            className="text-sm text-muted-foreground hover:text-foreground transition-micro font-medium"
-          >
-            Help
-          </a>
           <Button 
             variant="circular" 
             size="default"

@@ -1,0 +1,22 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "blursell.com"
+        }
+      ],
+      "destination": "https://www.blursell.com",
+      "permanent": true
+    }
+  ]
+}
+

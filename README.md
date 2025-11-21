@@ -1,56 +1,8 @@
-# Welcome to your Lovable project
+# BlurSell
 
-## Project info
+Auto-blur photos for safe online selling. Automatically blur license plates, house numbers, and serial numbers from your selling photos.
 
-**URL**: https://lovable.dev/projects/0c77a72c-baeb-4645-8304-b89027e58abd
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/0c77a72c-baeb-4645-8304-b89027e58abd) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Technologies
 
 This project is built with:
 
@@ -60,14 +12,58 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/0c77a72c-baeb-4645-8304-b89027e58abd) and click on Share -> Publish.
+### Prerequisites
 
-## Can I connect a custom domain to my Lovable project?
+- Node.js & npm (install with [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
 
-Yes, you can!
+### Installation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```sh
+# Step 1: Clone the repository
+git clone <YOUR_GIT_URL>
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Step 2: Navigate to the project directory
+cd blursell-frontend
+
+# Step 3: Install dependencies
+npm install
+
+# Step 4: Create environment file
+# Create a .env file in the root directory with:
+VITE_API_URL=https://blursell-backend.onrender.com
+
+# Step 5: Start the development server
+npm run dev
+```
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_URL=https://blursell-backend.onrender.com
+```
+
+**Note:** For Vercel deployment, add this as an environment variable in your Vercel project settings.
+
+## Development
+
+The development server will start on `http://localhost:8080` with hot module replacement enabled.
+
+## Building for Production
+
+```sh
+npm run build
+```
+
+The built files will be in the `dist` directory.
+
+## Project Structure
+
+- `src/components/` - React components
+- `src/pages/` - Page components
+- `src/lib/` - Utility functions
+- `src/hooks/` - Custom React hooks
+- `public/` - Static assets
