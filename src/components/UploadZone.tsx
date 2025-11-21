@@ -14,8 +14,18 @@ export const UploadZone = ({ onImageUploaded, isProcessing, isUnlocked = false, 
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please upload an image file");
+    // Safe file type and name extraction
+    const safeType = (file.type || "").toLowerCase();
+    const safeName = (file.name || "").toLowerCase();
+
+    // Validate image file
+    const isImage =
+      safeType.startsWith("image/") ||
+      /\.(png|jpg|jpeg|webp|gif)$/i.test(safeName);
+
+    if (!isImage) {
+      console.error("Unsupported file type", { safeType, safeName });
+      toast.error("Unsupported file type. Please upload a valid image.");
       return;
     }
     
@@ -55,8 +65,11 @@ export const UploadZone = ({ onImageUploaded, isProcessing, isUnlocked = false, 
     if (!items) return;
     
     for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const file = items[i].getAsFile();
+      const item = items[i];
+      const itemType = (item.type || "").toLowerCase();
+      
+      if (itemType.indexOf('image') !== -1) {
+        const file = item.getAsFile();
         if (file) {
           handleFile(file);
           toast.success("Image pasted successfully!");
