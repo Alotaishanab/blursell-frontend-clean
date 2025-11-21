@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { UploadZone } from "@/components/UploadZone";
 import { ImagePreview } from "@/components/ImagePreview";
-import { PricingCards } from "@/components/PricingCards";
+import { PricingModal } from "@/components/PricingModal";
 import { toast } from "sonner";
 
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [blurredImage, setBlurredImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPricingOpen, setIsPricingOpen] = useState(false);
+  const uploadRef = useRef<HTMLDivElement>(null);
 
   const handleImageUpload = async (file: File) => {
     setIsProcessing(true);
@@ -57,14 +59,21 @@ const Index = () => {
     setIsProcessing(false);
   };
 
+  const scrollToUpload = () => {
+    uploadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      <Header />
+    <div className="min-h-screen bg-background dark overflow-hidden">
+      <Header 
+        onUploadClick={scrollToUpload}
+        onPricingClick={() => setIsPricingOpen(true)}
+      />
       
       <main>
-        <Hero />
+        <Hero onUploadClick={scrollToUpload} />
         
-        <section className="py-12 px-4">
+        <section ref={uploadRef} className="py-12 px-4">
           {!uploadedImage && !blurredImage ? (
             <UploadZone onImageUploaded={handleImageUpload} isProcessing={isProcessing} />
           ) : (
@@ -76,17 +85,17 @@ const Index = () => {
           )}
         </section>
 
-        <PricingCards />
-
         {/* Footer */}
-        <footer className="border-t border-border/50 py-8 px-4 mt-20">
+        <footer className="border-t border-border/30 py-12 px-4 mt-20">
           <div className="container mx-auto text-center">
-            <p className="text-sm text-muted-foreground">
-              © 2024 BlurSell. Built with privacy in mind. 🔒
+            <p className="text-sm text-muted-foreground opacity-70 font-light">
+              © 2024 BlurSell. Built with privacy in mind.
             </p>
           </div>
         </footer>
       </main>
+
+      <PricingModal open={isPricingOpen} onOpenChange={setIsPricingOpen} />
     </div>
   );
 };
